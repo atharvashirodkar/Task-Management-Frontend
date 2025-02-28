@@ -13,6 +13,12 @@ const TaskList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Pagination state
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    rowsPerPage: 5, // Default rows per page
+  });
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -52,6 +58,19 @@ const TaskList = () => {
     task.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Pagination handlers
+  const handlePageChange = (event, newPage) => {
+    setPaginationModel((prev) => ({ ...prev, page: newPage }));
+  };
+
+  const handleRowsPerPageChange = (event) => {
+    setPaginationModel((prev) => ({
+      ...prev,
+      rowsPerPage: parseInt(event.target.value, 10),
+      page: 0, // Reset to the first page
+    }));
+  };
+
   return (
     <Container>
       <TaskSearch onSearch={handleSearch} />
@@ -59,12 +78,16 @@ const TaskList = () => {
         Add Task
       </Button>
 
-      <TaskTable 
-      tasks={filteredTasks} 
-      onDelete={confirmDelete} 
-      onView={(id) => navigate(`/task/${id}`)} 
-      onEdit={(id) => navigate(`/task/edit/${id}`)} 
-      loading={loading} />
+      <TaskTable
+        tasks={filteredTasks}
+        onDelete={confirmDelete}
+        onView={(id) => navigate(`/task/${id}`)}
+        onEdit={(id) => navigate(`/task/edit/${id}`)}
+        loading={loading}
+        paginationModel={paginationModel}
+        onPageChange={handlePageChange}
+        onRowsPerPageChange={handleRowsPerPageChange}
+      />
 
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
         <DialogTitle>Are you sure?</DialogTitle>
