@@ -7,6 +7,7 @@ import Register from "./pages/Register";
 import AddUpdateTask from "./component/AddUpdateTask";
 import { Typography } from "@mui/material";
 import Header from "./component/Header";
+import Profile from "./pages/Profile";
 
 const App = () => {
   return (
@@ -15,6 +16,7 @@ const App = () => {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/profile" element={<Profile />} />
 
         <Route path="/" element={<TaskList />} />
         <Route path="/task/:taskId" element={<TaskDetails />} />
