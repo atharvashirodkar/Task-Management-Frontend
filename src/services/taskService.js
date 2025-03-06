@@ -1,4 +1,5 @@
 import axios from "axios";
+import { createAuthHeaders } from "../utils/auth";
 
 const API_URL = "http://localhost:8080/api/v1/tasks";
 
@@ -6,24 +7,6 @@ const API_URL = "http://localhost:8080/api/v1/tasks";
 //   console.error("API Error:", error);
 //   throw error;
 // };
-
-// Helper function to get the token from localStorage
-const getAuthToken = () => {
-  const user = JSON.parse(localStorage.getItem("user"));
-  // console.log(user);
-  
-  return user ? user.token : null;
-};
-
-// Helper function to create headers with the token
-const createAuthHeaders = () => {
-  const token = getAuthToken();
-  return {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  };
-};
 
 export const getTasks = async ({ page, limit, title, status, startDate, endDate, q } = {}) => {
   try {
