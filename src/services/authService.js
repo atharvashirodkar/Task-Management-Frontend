@@ -1,4 +1,5 @@
 import axios from "axios";
+import { createAuthHeaders } from "../utils/auth";
 
 const API_AUTH_URL = "http://localhost:8080/auth";
 
@@ -40,5 +41,19 @@ export const logout = () => {
 // Check if the user is authenticated
 export const isAuthenticated = () => {
   const user = JSON.parse(localStorage.getItem("user"));
+  console.log(user);
   return user && user.token;
+};
+
+// Get user data from the API
+export const getUser = async () => {
+  try {
+    const user = JSON.parse(localStorage.getItem("user"));
+    // console.log(user.email);
+    const res = await axios.post(`${API_AUTH_URL}/profile`, {email: user.email} , { ...createAuthHeaders() });
+    return res.data;
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    return null;
+  }
 };
