@@ -37,9 +37,15 @@ const Header = () => {
           </Typography>
 
           {isAuthenticated ? (
-            <Button color="inherit" onClick={handleLogout}>
-              Logout
-            </Button>
+            <>
+              <Button color="inherit" onClick={handleLogout}>
+                Logout
+              </Button>
+              
+              <Button color="inherit" component={Link} to="/profile">
+                Profile
+              </Button>
+            </>
           ) : (
             <>
               <Button color="inherit" component={Link} to="/login">
