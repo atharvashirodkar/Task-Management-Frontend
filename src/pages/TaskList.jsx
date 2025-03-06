@@ -2,34 +2,44 @@ import React, { useState, useEffect } from "react";
 import TaskTable from "../component/TaskTable";
 import TaskSearch from "../component/TaskSearch";
 import { getTasks, deleteTask } from "../services/taskService";
-import { Container, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions, CircularProgress, Snackbar, Alert } from "@mui/material";
+import { Container, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 const TaskList = () => {
   const [tasks, setTasks] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  // Pagination state
+  const navigate = useNavigate();
+ const [totalTasks, setTotalTasks] = useState([]);
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
-    rowsPerPage: 5, // Default rows per page
+    limit: 5,
   });
 
-  const navigate = useNavigate();
+  const [filters, setFilters] = useState({
+    title: "",
+    status: "",
+    from: "",
+    to: "",
+    q: "",
+  });
 
   useEffect(() => {
     fetchTasks();
-  }, []);
+  }, [paginationModel, filters]);
 
   const fetchTasks = async () => {
     setLoading(true);
     try {
-      const data = await getTasks();
-      setTasks(data);
+      const { page, limit } = paginationModel;
+      const data = await getTasks({
+        page: page + 1, 
+        limit
+      });
+      setTasks(data.data);
+      setTotalTasks(data.pagination.totalTasks);      
     } catch (err) {
       setError("Failed to fetch tasks.");
     } finally {
@@ -52,41 +62,48 @@ const TaskList = () => {
     }
   };
 
-  const handleSearch = (query) => setSearchQuery(query);
+  const handleSearch = (query) => {
+    setFilters((prev) => ({ ...prev, q: query }));
+    setPaginationModel((prev) => ({ ...prev, page: 0 }));
+  };
 
-  const filteredTasks = tasks.filter((task) =>
-    task.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const handleFilterChange = (newFilters) => {
+    setFilters(newFilters);
+    setPaginationModel((prev) => ({ ...prev, page: 1 }));
+  };
 
-  // Pagination handlers
   const handlePageChange = (event, newPage) => {
     setPaginationModel((prev) => ({ ...prev, page: newPage }));
   };
 
-  const handleRowsPerPageChange = (event) => {
+  const handleLimitChange = (event) => {
     setPaginationModel((prev) => ({
       ...prev,
-      rowsPerPage: parseInt(event.target.value, 10),
-      page: 0, // Reset to the first page
+      limit: parseInt(event.target.value, 10),
+      page: 0,
     }));
   };
 
   return (
     <Container>
-      <TaskSearch onSearch={handleSearch} />
+      <TaskSearch
+        onSearch={handleSearch}
+        onFilterChange={handleFilterChange}
+      />
       <Button variant="contained" color="primary" sx={{ mt: 2 }} onClick={() => navigate("/task/add")}>
         Add Task
       </Button>
 
       <TaskTable
-        tasks={filteredTasks}
+        tasks={tasks}
         onDelete={confirmDelete}
         onView={(id) => navigate(`/task/${id}`)}
         onEdit={(id) => navigate(`/task/edit/${id}`)}
         loading={loading}
+        totalTasks={totalTasks}
         paginationModel={paginationModel}
         onPageChange={handlePageChange}
-        onRowsPerPageChange={handleRowsPerPageChange}
+        onLimitChange={handleLimitChange}
       />
 
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
@@ -103,10 +120,6 @@ const TaskList = () => {
           </Button>
         </DialogActions>
       </Dialog>
-
-      <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError("")}>
-        <Alert severity="error">{error}</Alert>
-      </Snackbar>
     </Container>
   );
 };
