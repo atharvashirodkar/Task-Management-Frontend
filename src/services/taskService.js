@@ -2,57 +2,90 @@ import axios from "axios";
 
 const API_URL = "http://localhost:8080/api/v1/tasks";
 
-const handleError = (error) => {
-  console.error("API Error:", error);
-  throw error;
+// const handleError = (error) => {
+//   console.error("API Error:", error);
+//   throw error;
+// };
+
+// Helper function to get the token from localStorage
+const getAuthToken = () => {
+  const user = JSON.parse(localStorage.getItem("user"));
+  // console.log(user);
+  
+  return user ? user.token : null;
 };
 
-export const getTasks = async () => {
-  try {
-    const response = await axios.get(API_URL);
-    return response.data.data;
-  } catch (error) {
-    handleError(error);
-    return [];
-  }
+// Helper function to create headers with the token
+const createAuthHeaders = () => {
+  const token = getAuthToken();
+  return {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
 };
 
-export const getTaskById = async (taskId) => {
+export const getTasks = async ({ page, limit, title, status, startDate, endDate, q } = {}) => {
   try {
-    const response = await axios.get(`${API_URL}/${taskId}`);
+    const url = new URL(API_URL);
+    const params = new URLSearchParams();
+
+    if (page !== undefined && limit !== undefined) {
+      params.append("page", page);
+      params.append("limit", limit);
+    }
+
+    if (title) params.append("title", title);
+    if (status) params.append("status", status);
+    if (startDate) params.append("from", startDate);
+    if (endDate) params.append("to", endDate);
+    if (q) params.append("q", q);
+
+    url.search = params.toString();
+
+    const response = await axios.get(url.toString(), { ...createAuthHeaders() });
     return response.data;
   } catch (error) {
-    handleError(error);
+    console.error("Error fetching tasks:", error);
+    throw error;
+  }
+};
+export const getTaskById = async (taskId) => {
+  try {
+    const response = await axios.get(`${API_URL}/${taskId}`, createAuthHeaders());
+    return response.data;
+  } catch (error) {
+    // handleError(error);
     return null;
   }
 };
 
 export const createTask = async (taskData) => {
   try {
-    const response = await axios.post(API_URL, taskData);
+    const response = await axios.post(API_URL, taskData, createAuthHeaders());
     return response.data;
   } catch (error) {
-    handleError(error);
+    // handleError(error);
     return null;
   }
 };
 
 export const updateTask = async (taskId, updatedTask) => {
   try {
-    const response = await axios.put(`${API_URL}/${taskId}`, updatedTask);
+    const response = await axios.put(`${API_URL}/${taskId}`, updatedTask, createAuthHeaders());
     return response.data;
   } catch (error) {
-    handleError(error);
+    // handleError(error);
     return null;
   }
 };
 
 export const deleteTask = async (taskId) => {
   try {
-    await axios.delete(`${API_URL}/${taskId}`);
+    await axios.delete(`${API_URL}/${taskId}`, createAuthHeaders());
     return true;
   } catch (error) {
-    handleError(error);
+    // handleError(error);
     return false;
   }
 };
