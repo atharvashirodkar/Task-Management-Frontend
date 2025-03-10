@@ -8,6 +8,8 @@ import AddUpdateTask from "./component/AddUpdateTask";
 import { Typography } from "@mui/material";
 import Header from "./component/Header";
 import Profile from "./pages/Profile";
+import ChangePassword from "./pages/ChangePassword";
+import ErrorPage from "./pages/ErrorPage";
 
 const App = () => {
   return (
@@ -17,14 +19,14 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/change-password" element={<ChangePassword />} />
 
         <Route path="/" element={<TaskList />} />
         <Route path="/task/:taskId" element={<TaskDetails />} />
         <Route path="/task/add" element={<AddUpdateTask />} />
         <Route path="/task/edit/:taskId" element={<AddUpdateTask />} />
 
-        {/* 404 Page */}
-        <Route path="*" element={<Typography variant="h4">404 - Page Not Found</Typography>} />
+        <Route path="*" element={<ErrorPage/>} />
       </Routes>
     </BrowserRouter>
   );
