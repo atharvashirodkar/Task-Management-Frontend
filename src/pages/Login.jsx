@@ -13,12 +13,11 @@ const Login = () => {
     e.preventDefault();
     try {
       const userData = { email, password };
+      console.log(userData);
       const response = await login(userData);
-      // console.log(userData);
-      // console.log(response);
-      // console.log(response.token);
-      
-      if (response.token) {
+      console.log(response);
+
+      if (response && response.accessToken) {
         navigate("/");
         window.location.reload(); 
       } else {
