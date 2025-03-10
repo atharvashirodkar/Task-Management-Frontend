@@ -9,8 +9,6 @@ import {
   Paper,
   IconButton,
   Tooltip,
-  CircularProgress,
-  Typography,
   Box,
   TablePagination,
 } from "@mui/material";
@@ -22,15 +20,13 @@ const TaskTable = ({
   onEdit,
   onDelete,
   onView,
-  loading,
   paginationModel,
   onPageChange,
   onLimitChange,
   totalTasks,
 }) => {
   const { page, limit } = paginationModel;
-  if (loading) return <CircularProgress sx={{ mt: 2 }} />;
-  if (tasks.length === 0) return <Typography sx={{ mt: 2 }}>No tasks found...</Typography>;
+
 
   return (
     <TableContainer component={Paper} sx={{ mt: 2, borderRadius: 2, boxShadow: 3 }}>
@@ -45,55 +41,65 @@ const TaskTable = ({
           </TableRow>
         </TableHead>
         <TableBody>
-          {tasks.map((task) => (
-            <TableRow
-              key={task.id}
-              sx={{ "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" }, transition: "background-color 0.3s" }}
-            >
-              <TableCell sx={{ wordBreak: "break-word" }}>{task.title}</TableCell>
-              <TableCell sx={{ wordBreak: "break-word" }}>{task.description}</TableCell>
-              <TableCell>
-                <Box
-                  sx={{
-                    display: "inline-block",
-                    px: 1,
-                    py: 0.5,
-                    borderRadius: 1,
-                    backgroundColor:
-                      task.status === "Completed"
-                        ? "#4CAF50"
-                        : task.status === "In Progress"
-                          ? "#FFC107"
-                          : "#F44336",
-                    color: "#fff",
-                    fontWeight: "bold",
-                    textAlign: "center",
-                    minWidth: "100px",
-                  }}
+          {tasks.length === 0 ?
+            (<TableRow>
+              <TableCell
+                colSpan={5}
+                align="center"
+                sx={{ fontWeight: "bold", color: "#212121" }}
+              >
+                No tasks found.
+              </TableCell>
+            </TableRow>) : (
+              tasks.map((task) => (
+                <TableRow
+                  key={task.id}
+                  sx={{ "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" }, transition: "background-color 0.3s" }}
                 >
-                  {task.status}
-                </Box>
-              </TableCell>
-              <TableCell>{moment(task.created_at).format("DD-MM-YYYY")}</TableCell>
-              <TableCell>
-                <Tooltip title="Edit Task">
-                  <IconButton color="secondary" onClick={() => onEdit(task.id)}>
-                    <Edit />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Delete Task">
-                  <IconButton color="error" onClick={() => onDelete(task.id)}>
-                    <Delete />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="View Task">
-                  <IconButton color="primary" onClick={() => onView(task.id)}>
-                    <Visibility />
-                  </IconButton>
-                </Tooltip>
-              </TableCell>
-            </TableRow>
-          ))}
+                  <TableCell sx={{ wordBreak: "break-word" }}>{task.title}</TableCell>
+                  <TableCell sx={{ wordBreak: "break-word" }}>{task.description}</TableCell>
+                  <TableCell>
+                    <Box
+                      sx={{
+                        display: "inline-block",
+                        px: 1,
+                        py: 0.5,
+                        borderRadius: 1,
+                        backgroundColor:
+                          task.status === "Completed"
+                            ? "#4CAF50"
+                            : task.status === "In Progress"
+                              ? "#FFC107"
+                              : "#F44336",
+                        color: "#fff",
+                        fontWeight: "bold",
+                        textAlign: "center",
+                        minWidth: "100px",
+                      }}
+                    >
+                      {task.status}
+                    </Box>
+                  </TableCell>
+                  <TableCell>{moment(task.created_at).format("DD-MM-YYYY")}</TableCell>
+                  <TableCell>
+                    <Tooltip title="Edit Task">
+                      <IconButton color="secondary" onClick={() => onEdit(task.id)}>
+                        <Edit />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Delete Task">
+                      <IconButton color="error" onClick={() => onDelete(task.id)}>
+                        <Delete />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="View Task">
+                      <IconButton color="primary" onClick={() => onView(task.id)}>
+                        <Visibility />
+                      </IconButton>
+                    </Tooltip>
+                  </TableCell>
+                </TableRow>
+              )))}
         </TableBody>
       </Table>
       <TablePagination
