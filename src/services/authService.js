@@ -23,26 +23,37 @@ export const register = async (userData) => {
 export const login = async (userData) => {
   try {
     const response = await axios.post(`${API_AUTH_URL}/login`, userData);
-    if (response.data.token) {
-      localStorage.setItem("user", JSON.stringify(response.data)); // Store user data in localStorage
+    if (response.data.accessToken && response.data.refreshToken) {
+      localStorage.setItem("user", JSON.stringify(response.data));
     }
     return response.data;
   } catch (error) {
-    handleError(error);
+    console.error("Login error:", error);
     return null;
   }
 };
 
 // Logout user
-export const logout = () => {
-  localStorage.removeItem("user"); // Remove user data from localStorage
+export const logout = async (refreshToken) => {
+
+  console.log(refreshToken);
+
+
+  try {
+    if (refreshToken) {
+      await axios.post(`${API_AUTH_URL}/logout`, refreshToken);
+    }
+  } catch (error) {
+    console.error("Error during logout:", error);
+  }
+
+  localStorage.removeItem("user"); 
 };
 
 // Check if the user is authenticated
 export const isAuthenticated = () => {
   const user = JSON.parse(localStorage.getItem("user"));
-  console.log(user);
-  return user && user.token;
+  return user && user.accessToken;
 };
 
 // Get user data from the API
@@ -50,10 +61,20 @@ export const getUser = async () => {
   try {
     const user = JSON.parse(localStorage.getItem("user"));
     // console.log(user.email);
-    const res = await axios.post(`${API_AUTH_URL}/profile`, {email: user.email} , { ...createAuthHeaders() });
+    const res = await axios.post(`${API_AUTH_URL}/profile`, { email: user.email }, { ...createAuthHeaders() });
     return res.data;
   } catch (error) {
     console.error('Error fetching user:', error);
     return null;
+  }
+};
+
+// Function to change password
+export const changePassword = async (userData) => {
+  try {
+    await axios.post(`${API_AUTH_URL}/change-password`, userData, createAuthHeaders());
+  } catch (error) {
+    console.error('Error changing password:', error.response?.data || error.message);
+    throw error;
   }
 };
