@@ -3,10 +3,10 @@ import { createAuthHeaders } from "../utils/auth";
 
 const API_URL = "http://localhost:8080/api/v1/tasks";
 
-// const handleError = (error) => {
-//   console.error("API Error:", error);
-//   throw error;
-// };
+const handleError = (error) => {
+  console.error("API Error:", error);
+  throw error;
+};
 
 export const getTasks = async ({ page, limit, title, status, startDate, endDate, q } = {}) => {
   try {
@@ -27,6 +27,8 @@ export const getTasks = async ({ page, limit, title, status, startDate, endDate,
     url.search = params.toString();
 
     const response = await axios.get(url.toString(), { ...createAuthHeaders() });
+    // console.log(response);
+    
     return response.data;
   } catch (error) {
     console.error("Error fetching tasks:", error);
@@ -38,7 +40,7 @@ export const getTaskById = async (taskId) => {
     const response = await axios.get(`${API_URL}/${taskId}`, createAuthHeaders());
     return response.data;
   } catch (error) {
-    // handleError(error);
+    handleError(error);
     return null;
   }
 };
@@ -48,7 +50,7 @@ export const createTask = async (taskData) => {
     const response = await axios.post(API_URL, taskData, createAuthHeaders());
     return response.data;
   } catch (error) {
-    // handleError(error);
+    handleError(error);
     return null;
   }
 };
@@ -58,7 +60,7 @@ export const updateTask = async (taskId, updatedTask) => {
     const response = await axios.put(`${API_URL}/${taskId}`, updatedTask, createAuthHeaders());
     return response.data;
   } catch (error) {
-    // handleError(error);
+    handleError(error);
     return null;
   }
 };
@@ -68,7 +70,7 @@ export const deleteTask = async (taskId) => {
     await axios.delete(`${API_URL}/${taskId}`, createAuthHeaders());
     return true;
   } catch (error) {
-    // handleError(error);
+    handleError(error);
     return false;
   }
 };
