@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import TaskTable from "../component/TaskTable";
 import TaskSearch from "../component/TaskSearch";
 import { getTasks, deleteTask } from "../services/taskService";
-import { Container, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
+import { Box, Container, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 const TaskList = () => {
@@ -12,7 +12,7 @@ const TaskList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const navigate = useNavigate();
- const [totalTasks, setTotalTasks] = useState([]);
+  const [totalTasks, setTotalTasks] = useState(0);
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
     limit: 5,
@@ -21,8 +21,8 @@ const TaskList = () => {
   const [filters, setFilters] = useState({
     title: "",
     status: "",
-    from: "",
-    to: "",
+    startDate: "",
+    endDate: "",
     q: "",
   });
 
@@ -35,11 +35,12 @@ const TaskList = () => {
     try {
       const { page, limit } = paginationModel;
       const data = await getTasks({
-        page: page + 1, 
-        limit
+        page: page + 1,
+        limit,
+        ...filters,
       });
       setTasks(data.data);
-      setTotalTasks(data.pagination.totalTasks);      
+      setTotalTasks(data.pagination.totalTasks);
     } catch (err) {
       setError("Failed to fetch tasks.");
     } finally {
@@ -69,7 +70,10 @@ const TaskList = () => {
 
   const handleFilterChange = (newFilters) => {
     setFilters(newFilters);
-    setPaginationModel((prev) => ({ ...prev, page: 1 }));
+    // debugging
+    console.log(newFilters);
+
+    setPaginationModel((prev) => ({ ...prev, page: 0 }));
   };
 
   const handlePageChange = (event, newPage) => {
@@ -86,13 +90,17 @@ const TaskList = () => {
 
   return (
     <Container>
+      <Box sx={{display: 'flex', justifyContent: 'end'}}>
+        <Button variant="contained" color="primary" sx={{ mb: 2 }} onClick={() => navigate("/task/add")}>
+        Add Task
+      </Button>
+      </Box>
+      
       <TaskSearch
         onSearch={handleSearch}
         onFilterChange={handleFilterChange}
       />
-      <Button variant="contained" color="primary" sx={{ mt: 2 }} onClick={() => navigate("/task/add")}>
-        Add Task
-      </Button>
+
 
       <TaskTable
         tasks={tasks}
